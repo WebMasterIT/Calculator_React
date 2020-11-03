@@ -2,7 +2,7 @@
   "name": "calc-money",
   "version": "0.1.0",
   "private": true,
-  "homepage": "https://github.com/WebMasterIT/Calculator_React", 
+  "homepage": "https://webmasterit.github.io/Calculator_React/", 
   "dependencies": {
     "@testing-library/jest-dom": "^4.2.4",
     "@testing-library/react": "^9.5.0",
