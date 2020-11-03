@@ -230,7 +230,7 @@ main {
 }
 
 .operation__btn-add {
-    margin-left: 124px;
+    /* margin-left: 124px; */
     background-color: var(--positive-color);
     border-color: var(--positive-color);
 }

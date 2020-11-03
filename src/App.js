@@ -1,9 +1,92 @@
-import React from 'react';
+import React, {Component} from 'react';
 import './normalize.css';
 import './style.css';
+import Total from './components/total/Total';
+import History from './components/history/History';
+import Operation from './components/operation/Operation';
 
-function App() {
-  return (
+class App extends Component {
+    
+    state = {
+        transactions: JSON.parse(localStorage.getItem('calcMoney1')) || [],
+        description: '',
+        amount: '',
+        resultIncome: 0,
+        resultExpenses: 0,
+        totalBalance: 0,
+    }
+
+    addTransaction = add => {
+
+        const transactions = [...this.state.transactions,
+            {
+              id: `cmr${(+new Date()).toString(16)}`,
+              description: this.state.description,
+              amount: parseFloat(this.state.amount),
+              add
+            }
+        ];
+
+        this.setState({
+          transactions,
+          description: '',
+          amount: '',
+        }, () => { 
+          this.getTotalBalance();
+        });
+    }
+    
+    componentWillMount() {
+      this.getTotalBalance();
+    }
+
+    componentWillUpdate() {
+      this.addStorage()
+    }
+
+    addAmount = e => {
+        this.setState({amount:  e.target.value})
+    }
+    
+    addDescription = e => {
+        this.setState({description: e.target.value})
+    }
+
+    getIncome = () =>
+      this.state.transactions
+      .reduce((acc, item) => item.add ? item.amount + acc : acc, 0)
+  
+
+    getExpenses = () =>
+      this.state.transactions
+      .reduce((acc, item) => !item.add ? item.amount + acc : acc, 0)
+    
+
+
+    getTotalBalance() {
+      const resultIncome = this.getIncome();
+      const resultExpenses = this.getExpenses();
+
+      const totalBalance = resultIncome - resultExpenses;
+
+      this.setState({
+        resultIncome,
+        resultExpenses,
+        totalBalance,
+      })
+    }
+
+    addStorage() {
+      localStorage.setItem('calcMoney1', JSON.stringify(this.state.transactions))
+    }
+
+    delTransaction = key => {
+      const transactions = this.state.transactions.filter(item => item.id !== key )
+      this.setState({transactions}, this.getTotalBalance)
+    }
+    
+  render() {
+    return (
     // <> тоже самое что и <React.Fragment></React.Fragment>
     <> 
       <header>
@@ -11,61 +94,30 @@ function App() {
         <h2>Калькулятор расходов</h2>
       </header>
 
-    <main />
+    <main>
         <div className="container">
-            <section className="total">
-                <header className="total__header">
-                    <h3>Баланс</h3>
-                    <p className="total__balance">0 ₽</p>
-                </header>
-                <div className="total__main">
-                    <div className="total__main-item total__income">
-                        <h4>Доходы</h4>
-                        <p className="total__money total__money-income">
-                            +0 ₽
-                        </p>
-                    </div>
-                    <div className="total__main-item total__expenses">
-                        <h4>Расходы</h4>
-                        <p className="total__money total__money-expenses">
-                            -0 ₽
-                        </p>
-                    </div>
-                </div>
-            </section>
+            <Total
+            resultExpenses={this.state.resultExpenses}
+            resultIncome={this.state.resultIncome}
+            totalBalance={this.state.totalBalance}
+            />
 
-            <section className="history">
-                <h3>История расходов</h3>
-                <ul className="history__list">
-                    <li className="history__item history__item-plus">Получил зарплату
-                        <span className="history__money">+30000 ₽</span>
-                        <button className="history__delete">x</button>
-                    </li>
+           <History transactions={this.state.transactions}
+            delTransaction={this.delTransaction}
+           />
 
-                    <li className="history__item  history__item-minus">Отдал долг
-                        <span className="history__money">-10000 ₽</span>
-                        <button className="history__delete">x</button>
-                    </li>
-                </ul>
-            </section>
-
-            <section className="operation" />
-                <h3>Новая операция</h3>
-                <form id="form" />
-                    <label />
-                        <input type="text" className="operation__fields operation__name" placeholder="Наименование операции" />
-                    
-                    <label />
-                        <input type="number" className="operation__fields operation__amount" placeholder="Введите сумму" />
-                     
-                    <div className="operation__btns" />
-                        <button type="submit" className="operation__btn operation__btn-subtract">РАСХОД</button>
-                        <button type="submit" className="operation__btn operation__btn-add">ДОХОД</button>
-                    </div>
-            <section />
-        <div />
+            <Operation 
+            addTransaction={this.addTransaction}
+            addAmount={this.addAmount}
+            addDescription = {this.addDescription}
+            description = {this.state.description}
+            amount = {this.state.amount}
+            />
+        </div>
+    </main>
     </>
   );
+}
 }
 
 export default App;
